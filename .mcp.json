@@ -1,8 +1,12 @@
 {
   "mcpServers": {
     "gmail-multi": {
-      "command": "python",
+      "command": "mcp-servers/gmail-multi/.venv/bin/python",
       "args": ["mcp-servers/gmail-multi/server.py"]
+    },
+    "mail-exchange": {
+      "command": "mcp-servers/mail-exchange/.venv/bin/python",
+      "args": ["mcp-servers/mail-exchange/server.py"]
     }
   }
 }
