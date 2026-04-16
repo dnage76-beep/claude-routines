@@ -1,0 +1,16 @@
+{
+  "accounts": {
+    "personal": {
+      "email": "dnage76@gmail.com",
+      "description": "Personal primary"
+    },
+    "secondary": {
+      "email": "dereknagel05@gmail.com",
+      "description": "Personal secondary"
+    },
+    "gmu": {
+      "email": "dnagl@gmu.edu",
+      "description": "GMU student email"
+    }
+  }
+}
