@@ -1,0 +1,5 @@
+{
+  "telegram_bot_token": "REPLACE_WITH_BOT_TOKEN",
+  "telegram_chat_id": "REPLACE_WITH_CHAT_ID",
+  "_comment": "Copy to config.json if you want the runner to read credentials from this file. Gitignored. Most of the time you don't need this -- the runner auto-discovers the plugin's existing token at ~/.claude/channels/telegram/.env."
+}
