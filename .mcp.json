@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gmail-multi": {
+      "command": "python",
+      "args": ["mcp-servers/gmail-multi/server.py"]
+    }
+  }
+}
