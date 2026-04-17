@@ -52,11 +52,13 @@ cd "$REPO" || exit 1
 echo "[$(date)] starting session $SESSION" >> "$LOG_DIR/start.log"
 
 # caffeinate flags:
-#   -d display awake, -i idle-sleep off, -m disk awake,
-#   -s system-sleep off (only effective on AC), -u user activity assertion.
-# This keeps the Mac awake while claude runs, which is what Derek wants.
+#   -i idle-sleep off, -m disk awake, -s system-sleep off (effective on AC only).
+# Deliberately NOT using -d (display) or -u (user-activity): those would keep
+# the display on and drain battery. Laptop lid closes -> Mac sleeps -> bot
+# goes deaf until wake. That's the tradeoff Derek wanted ("works when
+# computer is on"); we're not fighting power management.
 tmux new-session -d -s "$SESSION" -x 220 -y 60 \
-    "caffeinate -dimsu claude --dangerously-skip-permissions --permission-mode bypassPermissions 2>&1 | tee -a '$LOG_DIR/claude.log'"
+    "caffeinate -ims claude --dangerously-skip-permissions --permission-mode bypassPermissions 2>&1 | tee -a '$LOG_DIR/claude.log'"
 
 # Block until the session goes away, so launchd sees us as alive.
 while tmux has-session -t "$SESSION" 2>/dev/null; do

@@ -109,14 +109,13 @@ def bot_username() -> str:
                 break
     if not token:
         return "-"
-    import urllib.request, json
+    rc, out = sh("curl", "-s", "--max-time", "3",
+                 f"https://api.telegram.org/bot{token}/getMe", timeout=5)
+    if rc != 0 or not out:
+        return "unreachable"
     try:
-        req = urllib.request.Request(
-            f"https://api.telegram.org/bot{token}/getMe",
-            headers={"User-Agent": "sheldon-console"},
-        )
-        with urllib.request.urlopen(req, timeout=3) as r:
-            data = json.load(r)
+        import json as _json
+        data = _json.loads(out)
         if data.get("ok"):
             return "@" + data["result"]["username"]
     except Exception:
@@ -286,9 +285,8 @@ def action_triage():
 
 
 def action_test_dm():
-    """Send a getMe + getWebhookInfo summary so Derek knows the bot is reachable."""
+    """Ping Telegram getMe + getWebhookInfo to verify the bot is reachable."""
     import json
-    import urllib.request
     token = None
     env_file = HOME / ".claude" / "channels" / "telegram" / ".env"
     if env_file.exists():
@@ -300,15 +298,19 @@ def action_test_dm():
         Prompt.ask("\npress enter to return")
         return
 
-    try:
-        for name in ("getMe", "getWebhookInfo"):
-            with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/{name}", timeout=4) as r:
-                data = json.load(r)
-            console.print(Panel(json.dumps(data, indent=2), title=name, border_style="cyan"))
-    except Exception as e:
-        console.print(f"[red]error: {e}[/red]")
+    for name in ("getMe", "getWebhookInfo"):
+        rc, out = sh("curl", "-s", "--max-time", "4",
+                     f"https://api.telegram.org/bot{token}/{name}", timeout=6)
+        if rc != 0:
+            console.print(f"[red]{name} failed: {out}[/red]")
+            continue
+        try:
+            pretty = json.dumps(json.loads(out), indent=2)
+        except Exception:
+            pretty = out
+        console.print(Panel(pretty, title=name, border_style="cyan"))
 
-    console.print("\n[dim]now send the bot a DM on Telegram -- watch the log panel for the inbound.[/dim]")
+    console.print("\n[dim]now DM the bot -- watch claude.log on the dashboard for the inbound.[/dim]")
     Prompt.ask("press enter to return")
 
 
