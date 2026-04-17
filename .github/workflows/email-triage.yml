@@ -1,0 +1,41 @@
+name: Cloud Email Triage
+
+# Backup for the local launchd job at 7:35 AM / 5:35 PM ET.
+# If the Mac is asleep, you still get a Telegram digest of actionable emails.
+# Gmail-only (personal + secondary) — Exchange and Apple Reminders need macOS.
+
+on:
+  schedule:
+    # 7:30 AM ET — 30 minutes BEFORE the local launchd job at 7:35, so if the
+    # laptop is asleep you hear about it via Telegram, and if it's awake you
+    # get both (dedup happens locally via _load_existing_reminder_titles).
+    - cron: '30 11 * * *'   # 7:30 AM EDT
+    - cron: '30 12 * * *'   # 7:30 AM EST
+    # 5:30 PM ET evening pass.
+    - cron: '30 21 * * *'   # 5:30 PM EDT
+    - cron: '30 22 * * *'   # 5:30 PM EST
+  workflow_dispatch: {}
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scheduled/reminders/requirements-cloud.txt
+
+      - name: Install deps
+        run: pip install -r scheduled/reminders/requirements-cloud.txt
+
+      - name: Run cloud triage
+        env:
+          GMAIL_PERSONAL_TOKEN_B64:  ${{ secrets.GMAIL_PERSONAL_TOKEN_B64 }}
+          GMAIL_SECONDARY_TOKEN_B64: ${{ secrets.GMAIL_SECONDARY_TOKEN_B64 }}
+          TELEGRAM_BOT_TOKEN:        ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:          ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scheduled/reminders/cloud_triage.py
