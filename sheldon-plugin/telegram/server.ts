@@ -789,7 +789,7 @@ bot.command('help', async ctx => {
   if (ctx.chat?.type !== 'private') return
   await ctx.reply(
     "I'm Sheldon. Text me for anything — calendar, email, texts, school, reminders. " +
-    "Commands: /brief /triage /calendar /texts /vault /stop.",
+    "Commands: /brief /triage /calendar /texts /vault /reminders /stop.",
   )
 })
 
@@ -809,6 +809,10 @@ function sheldonCommandPrompt(cmd: string, rest: string): string | null {
       return 'Check iMessages — any recent ones from inner circle that need a reply?'
     case 'vault':
       return rest.trim() ? `Look up in vault: ${rest.trim()}` : 'Open the vault INDEX and summarize current priorities.'
+    case 'reminders':
+      // Runs the full 3-inbox actionable extractor (Gmail personal + secondary + GMU Exchange).
+      // Must run from a Claude.app-hosted session because Exchange (Mail.app) is TCC-gated.
+      return 'Run the reminders extractor NOW: `cd ~/Documents/Code/claude-routines && ./mcp-servers/gmail-multi/.venv/bin/python scheduled/reminders/extractor.py --since-hours 24 --verbose`. Report what got added to Apple Reminders (titles + due dates). If nothing passed the filter, say so.'
     default:
       return null
   }
@@ -853,6 +857,7 @@ bot.command('triage', async ctx => handleSheldonCommand(ctx, 'triage', ctx.match
 bot.command('calendar', async ctx => handleSheldonCommand(ctx, 'calendar', ctx.match ?? ''))
 bot.command('texts', async ctx => handleSheldonCommand(ctx, 'texts', ctx.match ?? ''))
 bot.command('vault', async ctx => handleSheldonCommand(ctx, 'vault', ctx.match ?? ''))
+bot.command('reminders', async ctx => handleSheldonCommand(ctx, 'reminders', ctx.match ?? ''))
 
 // SHELDON: /stop — best-effort cancel of the currently-running Claude turn.
 // Option A: SIGINT the parent claude process (PID written at boot).
@@ -1299,6 +1304,7 @@ void (async () => {
               { command: 'calendar', description: 'Today and tomorrow' },
               { command: 'texts',    description: 'Recent iMessages needing reply' },
               { command: 'vault',    description: 'Look something up in the vault' },
+              { command: 'reminders', description: 'Extract actionable items → Apple Reminders' },
               { command: 'stop',     description: 'Cancel current task' },
               { command: 'help',     description: 'What I can do' },
             ],

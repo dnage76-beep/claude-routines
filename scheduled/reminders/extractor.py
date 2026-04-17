@@ -786,12 +786,14 @@ def run(
     dry_run: bool = False,
     verbose: bool = False,
     max_reminders: int = MAX_REMINDERS_PER_RUN,
+    include_exchange: bool = True,
 ) -> list[dict]:
     run_time = datetime.now(tz=timezone.utc)
 
     candidates: list[Candidate] = []
     candidates.extend(_load_gmail_candidates(since_hours, verbose=verbose))
-    candidates.extend(_load_exchange_candidates(since_hours, verbose=verbose))
+    if include_exchange:
+        candidates.extend(_load_exchange_candidates(since_hours, verbose=verbose))
     if verbose:
         print(
             f"loaded {len(candidates)} raw candidates across all sources",
@@ -893,6 +895,12 @@ def main() -> int:
         default=MAX_REMINDERS_PER_RUN,
         help=f"Hard cap on reminders created per run (default {MAX_REMINDERS_PER_RUN}).",
     )
+    parser.add_argument(
+        "--no-exchange",
+        action="store_true",
+        help="Skip GMU Exchange (Mail.app) source. Use in launchd contexts "
+             "where Mail.app DB is TCC-protected and can't be read.",
+    )
     args = parser.parse_args()
 
     try:
@@ -901,6 +909,7 @@ def main() -> int:
             dry_run=args.dry_run,
             verbose=args.verbose,
             max_reminders=args.max,
+            include_exchange=not args.no_exchange,
         )
     except KeyboardInterrupt:
         print("interrupted", file=sys.stderr)

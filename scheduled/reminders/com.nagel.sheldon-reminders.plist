@@ -7,10 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>__REPO__/mcp-servers/gmail-multi/.venv/bin/python</string>
-        <string>__REPO__/scheduled/reminders/extractor.py</string>
-        <string>--since-hours</string>
-        <string>24</string>
+        <string>__HOME__/Library/Scripts/sheldon/SheldonReminders.app/Contents/MacOS/SheldonReminders</string>
     </array>
 
     <key>StartCalendarInterval</key>
