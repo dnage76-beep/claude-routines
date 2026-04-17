@@ -1,0 +1,7 @@
+#!/bin/zsh
+# Launcher for the Sheldon terminal console.
+# Usage:  ./sheldon-console/sheldon
+# Or add to PATH:  ln -s "$PWD/sheldon-console/sheldon" ~/.local/bin/sheldon
+set -eu
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$DIR/console.py" "$@"
