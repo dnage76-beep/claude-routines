@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.nagel.sheldon-reminders</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__REPO__/mcp-servers/gmail-multi/.venv/bin/python</string>
+        <string>__REPO__/scheduled/reminders/extractor.py</string>
+        <string>--since-hours</string>
+        <string>24</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>7</integer>
+            <key>Minute</key>
+            <integer>35</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>17</integer>
+            <key>Minute</key>
+            <integer>35</integer>
+        </dict>
+    </array>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>WorkingDirectory</key>
+    <string>__REPO__</string>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/sheldon-reminders/out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/sheldon-reminders/err.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:__HOME__/.local/bin:/usr/bin:/bin</string>
+        <key>HOME</key>
+        <string>__HOME__</string>
+        <key>LANG</key>
+        <string>en_US.UTF-8</string>
+    </dict>
+</dict>
+</plist>

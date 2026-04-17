@@ -1,0 +1,43 @@
+name: Alexa Flash Briefing
+
+on:
+  schedule:
+    # 7:00 AM ET morning push. EDT = UTC-4 → 11:00 UTC. EST = UTC-5 → 12:00 UTC.
+    # Running both gives correct 7am delivery year-round; idempotent PATCH.
+    - cron: '0 11 * * *'
+    - cron: '0 12 * * *'
+    # Evening refresh at 5:30 PM ET.
+    - cron: '30 21 * * *'
+    - cron: '30 22 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  push-briefing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: alexa/requirements.txt
+
+      - name: Install deps
+        run: pip install -r alexa/requirements.txt
+
+      - name: Push briefs to gists
+        working-directory: alexa
+        env:
+          GOOGLE_CLIENT_ID:           ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET:       ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN:       ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          GIST_TOKEN:                 ${{ secrets.GIST_TOKEN }}
+          ALEXA_GIST_MORNING_BRIEF:   ${{ secrets.ALEXA_GIST_MORNING_BRIEF }}
+          ALEXA_GIST_MESSAGE_SUMMARY: ${{ secrets.ALEXA_GIST_MESSAGE_SUMMARY }}
+          ALEXA_GIST_EMAIL_SUMMARY:   ${{ secrets.ALEXA_GIST_EMAIL_SUMMARY }}
+          ALEXA_GIST_UPCOMING_EVENTS: ${{ secrets.ALEXA_GIST_UPCOMING_EVENTS }}
+          ALEXA_GIST_NEWS_AND_WEATHER: ${{ secrets.ALEXA_GIST_NEWS_AND_WEATHER }}
+          VAULT_SNAPSHOT_GIST_ID:     ${{ secrets.VAULT_SNAPSHOT_GIST_ID }}
+        run: python -m briefing.main

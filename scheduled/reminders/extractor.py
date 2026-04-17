@@ -292,7 +292,7 @@ def _classify(cand: Candidate) -> None:
         return
 
     # Priority 4: Academic deadlines
-    if ACADEMIC_HINTS.search(full):
+    if ACADEMIC_STRONG_HINTS.search(full) or ACADEMIC_CONTEXT_HINTS.search(full):
         # Needs an action signal OR an explicit date word
         if has_action_signal or DATE_WORDS.search(full):
             cand.priority = 4
