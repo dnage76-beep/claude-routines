@@ -12,6 +12,12 @@ TARGET="$HOME_DIR/Library/LaunchAgents/${LABEL}.plist"
 
 mkdir -p "$HOME_DIR/Library/Logs/sheldon-telegram"
 mkdir -p "$HOME_DIR/Library/LaunchAgents"
+mkdir -p "$HOME_DIR/Library/Scripts/sheldon"
+
+# Copy start.sh into ~/Library/Scripts/ where launchd can read it.
+# ~/Documents is TCC-protected; launchd cannot exec files there.
+cp "$REPO/sheldon-daemon/start.sh" "$HOME_DIR/Library/Scripts/sheldon/sheldon-telegram-start.sh"
+chmod +x "$HOME_DIR/Library/Scripts/sheldon/sheldon-telegram-start.sh"
 
 # Substitute placeholders and write the installed plist.
 sed -e "s|__HOME__|$HOME_DIR|g" -e "s|__REPO__|$REPO|g" "$TEMPLATE" > "$TARGET"

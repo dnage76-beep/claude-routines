@@ -26,7 +26,7 @@ REPO="/Users/Nagel/Documents/Code/claude-routines"
 LOG_DIR="$HOME/Library/Logs/sheldon-telegram"
 
 export HOME="/Users/Nagel"
-export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:/usr/bin:/bin"
+export PATH="$HOME/.bun/bin:$HOME/.npm-global/bin:/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:/usr/bin:/bin"
 export LANG="en_US.UTF-8"
 
 mkdir -p "$LOG_DIR"
@@ -57,8 +57,14 @@ echo "[$(date)] starting session $SESSION" >> "$LOG_DIR/start.log"
 # the display on and drain battery. Laptop lid closes -> Mac sleeps -> bot
 # goes deaf until wake. That's the tradeoff Derek wanted ("works when
 # computer is on"); we're not fighting power management.
+# Hardcode npm-global claude path: under launchd PATH, `which claude` resolves
+# to ~/.local/bin/claude (bundled Bun build) which mishandles tmux TTY and
+# exits with "--print needs stdin". npm-global version (2.1.111+) works.
+# Use tmux pipe-pane (not shell `| tee`) so claude's stdout stays a real PTY;
+# piping to tee made claude auto-detect non-interactive and bail.
 tmux new-session -d -s "$SESSION" -x 220 -y 60 \
-    "caffeinate -ims claude --dangerously-skip-permissions --permission-mode bypassPermissions 2>&1 | tee -a '$LOG_DIR/claude.log'"
+    "caffeinate -ims $HOME/.npm-global/bin/claude --dangerously-skip-permissions --permission-mode bypassPermissions --channels plugin:telegram@claude-plugins-official"
+tmux pipe-pane -t "$SESSION" -o "cat >> '$LOG_DIR/claude.log'"
 
 # Block until the session goes away, so launchd sees us as alive.
 while tmux has-session -t "$SESSION" 2>/dev/null; do

@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>__REPO__/sheldon-daemon/start.sh</string>
+        <string>__HOME__/Library/Scripts/sheldon/SheldonTelegram.app/Contents/MacOS/SheldonTelegram</string>
     </array>
 
     <key>RunAtLoad</key>
